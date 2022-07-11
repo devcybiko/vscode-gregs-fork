@@ -82,13 +82,6 @@ steps:
 
   - script: |
       set -e
-      npm install -g node-gyp@latest
-      node-gyp --version
-    displayName: Update node-gyp
-    condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
-
-  - script: |
-      set -e
       npx https://aka.ms/enablesecurefeed standAlone
     timeoutInMinutes: 5
     retryCountOnTaskFailure: 3
@@ -99,9 +92,10 @@ steps:
       set -e
       export npm_config_arch=$(VSCODE_ARCH)
       export npm_config_node_gyp=$(which node-gyp)
+      export npm_config_loglevel='silly'
 
       for i in {1..3}; do # try 3 times, for Terrapin
-        yarn --frozen-lockfile --check-files && break
+        yarn --frozen-lockfile --check-files --verbose && break
         if [ $i -eq 3 ]; then
           echo "Yarn failed too many times" >&2
           exit 1
